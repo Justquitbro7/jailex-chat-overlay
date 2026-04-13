@@ -34,7 +34,7 @@
             height: 100vh;
             width: 100vw;
             padding: 20px;
-            padding-top: 40px; /* space for status */
+            padding-top: 40px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -139,24 +139,36 @@
                 const pusher = new Pusher('32cbd69e4b950bf97679', { cluster: 'us2' });
                 const channel = pusher.subscribe(`chatrooms.${KICK_ROOM}.v2`);
                 
-                channel.bind('App\\Events\\ChatMessageEvent', (data) => {
+                channel.bind('App\\Events\\ChatMessageEvent', handleChatEvent);
+                channel.bind('App\\Events\\ChatMessageSentEvent', handleChatEvent); // new event name
+                
+                function handleChatEvent(data) {
+                    console.log('📨 RAW KICK DATA:', data); // ← open F12 to see this
+                    
                     const username = data.sender?.username || data.sender?.displayname || "KickUser";
-                    const message = data.content || "";
-                    if (message.trim()) {
-                        console.log('📨 New Kick message:', username, message);
+                    
+                    // NEW FIX: Try multiple possible locations for the message text
+                    let message = "";
+                    if (data.content) message = data.content;
+                    else if (data.message && typeof data.message === "object") message = data.message.message || data.message.content || data.message;
+                    else if (data.message) message = data.message;
+                    
+                    message = String(message || "").trim();
+                    
+                    if (message) {
+                        console.log('✅ Message added:', username, message);
+                        updateStatus(`✅ LIVE — ${username} just chatted`, '#53FC18');
                         addMessage(username, message);
                     }
-                });
+                }
                 
                 channel.bind('pusher:subscription_succeeded', () => {
-                    updateStatus('✅ CONNECTED — Waiting for chat messages (stream must be LIVE)', '#53FC18');
-                    console.log('%c✅ Kick Pusher connected successfully', 'color:#53FC18;font-weight:900');
+                    updateStatus('✅ CONNECTED — Waiting for chat (go live on Kick)', '#53FC18');
                 });
                 
-                console.log('🚀 Attempting Kick connection...');
             } catch(e) {
-                updateStatus('❌ CONNECTION ERROR — Check console (F12)', '#FF0000');
-                console.error('Kick connection error', e);
+                updateStatus('❌ ERROR — Check F12 console', '#FF0000');
+                console.error(e);
             }
         }
         
