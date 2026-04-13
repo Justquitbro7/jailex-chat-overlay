@@ -33,7 +33,7 @@
             gap: 8px;
             animation: fadeIn 0.4s ease forwards;
             max-width: 95%;
-            transition: opacity 0.8s ease;   /* smooth fade out */
+            transition: opacity 0.8s ease;
         }
         
         .username {
@@ -75,6 +75,7 @@
             
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
+            msgDiv.dataset.time = Date.now();   // timestamp for cleanup
             
             msgDiv.innerHTML = `
                 <span class="username">${username}</span>
@@ -84,16 +85,27 @@
             feed.appendChild(msgDiv);
             feed.scrollTop = feed.scrollHeight;
             
-            // Auto-remove after 30 seconds with fade
-            setTimeout(() => {
-                msgDiv.style.opacity = '0';
-                setTimeout(() => {
-                    if (msgDiv.parentNode) msgDiv.remove();
-                }, 800);
-            }, 30000);
-            
-            // Safety limit (keep only last 30 messages)
-            if (feed.children.length > 30) feed.removeChild(feed.children[0]);
+            // Safety limit
+            if (feed.children.length > 40) feed.removeChild(feed.children[0]);
+        }
+        
+        // ROBUST CLEANUP – runs every 5 seconds (works in Lightstream)
+        function startCleanup() {
+            setInterval(() => {
+                const feed = document.getElementById('chat-feed');
+                const now = Date.now();
+                const messages = feed.querySelectorAll('.message');
+                
+                messages.forEach(msg => {
+                    const age = now - parseInt(msg.dataset.time);
+                    if (age > 30000) {                    // 30 seconds
+                        msg.style.opacity = '0';
+                        setTimeout(() => {
+                            if (msg.parentNode) msg.remove();
+                        }, 800);
+                    }
+                });
+            }, 5000);
         }
         
         function connectKick() {
@@ -122,6 +134,7 @@
         
         window.onload = () => {
             connectKick();
+            startCleanup();        // ← This fixes Lightstream
         };
     </script>
 </body>
