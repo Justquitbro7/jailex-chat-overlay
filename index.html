@@ -14,17 +14,16 @@
             background: transparent !important;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            color: white;
         }
         
         #chat-feed {
             height: 100vh;
             width: 100vw;
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;           /* slightly more space for bigger text */
+            gap: 12px;
             scrollbar-width: none;
         }
         
@@ -39,16 +38,16 @@
         .username {
             font-weight: 700;
             color: #53FC18;
-            font-size: 16px;           /* 30% larger */
+            font-size: 16px;
             white-space: nowrap;
-            max-width: 190px;          /* a bit wider for bigger names */
+            max-width: 190px;
             overflow: hidden;
             text-overflow: ellipsis;
             margin-top: 3px;
         }
         
         .text {
-            font-size: 16px;           /* 30% larger */
+            font-size: 16px;
             line-height: 1.4;
             word-break: break-word;
             flex: 1;
@@ -61,19 +60,10 @@
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        .empty {
-            text-align: center;
-            margin-top: 30vh;
-            color: rgba(255,255,255,0.5);
-            font-size: 18px;           /* 30% larger */
-        }
     </style>
 </head>
 <body>
-    <div id="chat-feed">
-        <div class="empty">Waiting for messages...<br><small>Go live on Kick and type in chat</small></div>
-    </div>
+    <div id="chat-feed"></div>
 
     <script src="https://js.pusher.com/8.4.0-rc2/pusher.min.js"></script>
     <script>
@@ -81,8 +71,6 @@
         
         function addMessage(username, message) {
             const feed = document.getElementById('chat-feed');
-            const empty = feed.querySelector('.empty');
-            if (empty) empty.remove();
             
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
@@ -110,4 +98,21 @@
                     const username = data.sender?.username || data.sender?.displayname || "KickUser";
                     
                     let message = "";
-                   
+                    if (data.content) message = data.content;
+                    else if (data.message && data.message.message) message = data.message.message;
+                    else if (data.message) message = data.message;
+                    
+                    message = String(message || "").trim();
+                    
+                    if (message) addMessage(username, message);
+                }
+                
+            } catch(e) { console.error(e); }
+        }
+        
+        window.onload = () => {
+            connectKick();
+        };
+    </script>
+</body>
+</html>
