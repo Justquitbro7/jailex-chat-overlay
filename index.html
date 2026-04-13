@@ -64,14 +64,13 @@
         
         .username {
             font-weight: 700;
-            color: #53FC18;
+            color: #53FC18;           /* solid green */
             font-size: 12px;
             white-space: nowrap;
             max-width: 160px;
             overflow: hidden;
             text-overflow: ellipsis;
             margin-top: 2px;
-            text-shadow: 0 0 8px #53FC18;
         }
         
         .text {
@@ -79,10 +78,10 @@
             line-height: 1.4;
             word-break: break-word;
             flex: 1;
-            background: transparent;     /* 0% as requested */
+            background: transparent;     /* 0% background */
             padding: 4px 0;
             border-left: 4px solid #53FC18;
-            text-shadow: 0 0 8px rgba(83, 252, 24, 0.8);   /* makes text visible */
+            color: #53FC18;              /* solid green - no glow */
         }
         
         @keyframes fadeIn {
@@ -99,7 +98,7 @@
     </style>
 </head>
 <body>
-    <div id="status">🔄 Connecting to Kick Chatroom 92474944...</div>
+    <div id="status">✅ CONNECTED — Kick Chatroom 92474944</div>
     
     <div id="chat-feed">
         <div class="empty">Waiting for messages...<br><small>Go live on Kick and type in chat</small></div>
@@ -108,11 +107,6 @@
     <script src="https://js.pusher.com/8.4.0-rc2/pusher.min.js"></script>
     <script>
         const KICK_ROOM = "92474944";
-        
-        function updateStatus(text, color = "#53FC18") {
-            document.getElementById('status').innerHTML = text;
-            document.getElementById('status').style.color = color;
-        }
         
         function addMessage(username, message) {
             const feed = document.getElementById('chat-feed');
@@ -135,8 +129,6 @@
         }
         
         function connectKick() {
-            updateStatus('🔄 Connecting to Kick Chatroom 92474944...');
-            
             try {
                 const pusher = new Pusher('32cbd69e4b950bf97679', { cluster: 'us2' });
                 const channel = pusher.subscribe(`chatrooms.${KICK_ROOM}.v2`);
@@ -154,19 +146,14 @@
                     
                     message = String(message || "").trim();
                     
-                    if (message) {
-                        updateStatus(`✅ LIVE — ${username} just chatted`, '#53FC18');
-                        addMessage(username, message);
-                    }
+                    if (message) addMessage(username, message);
                 }
                 
                 channel.bind('pusher:subscription_succeeded', () => {
-                    updateStatus('✅ CONNECTED — Ready for chat', '#53FC18');
+                    console.log('%c✅ Kick chat fully connected', 'color:#53FC18');
                 });
                 
-            } catch(e) {
-                updateStatus('❌ ERROR — Check F12 console', '#FF0000');
-            }
+            } catch(e) { console.error(e); }
         }
         
         window.onload = () => {
