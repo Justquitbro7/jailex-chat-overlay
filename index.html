@@ -11,7 +11,7 @@
         html, body {
             height: 100vh;
             width: 100vw;
-            background: transparent !important; /* 0% opacity */
+            background: transparent !important;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
             color: white;
@@ -24,14 +24,14 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            scrollbar-width: none; /* hide scrollbar in OBS */
+            gap: 8px;
+            scrollbar-width: none;
         }
         
         .message {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
+            gap: 8px;
             animation: fadeIn 0.4s ease forwards;
             max-width: 95%;
         }
@@ -39,38 +39,38 @@
         .kick-badge {
             background: #53FC18;
             color: #000;
-            font-size: 13px;
+            font-size: 9px;
             font-weight: 900;
-            padding: 3px 9px;
-            border-radius: 6px;
+            padding: 2px 7px;
+            border-radius: 4px;
             letter-spacing: 1px;
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 3px;
         }
         
         .username {
             font-weight: 700;
             color: #53FC18;
-            font-size: 18px;
+            font-size: 12px;
             white-space: nowrap;
-            max-width: 180px;
+            max-width: 160px;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 2px;
         }
         
         .text {
-            font-size: 18px;
-            line-height: 1.35;
+            font-size: 12px;
+            line-height: 1.4;
             word-break: break-word;
             flex: 1;
-            background: rgba(0, 0, 0, 0.65); /* subtle readable background */
-            padding: 8px 14px;
-            border-radius: 10px;
-            border-left: 4px solid #53FC18;
+            background: transparent;          /* 0% background as requested */
+            padding: 4px 0;
+            border-left: 3px solid #53FC18;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
@@ -78,7 +78,7 @@
             text-align: center;
             margin-top: 40vh;
             color: rgba(255,255,255,0.4);
-            font-size: 17px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -109,11 +109,9 @@
             feed.appendChild(msgDiv);
             feed.scrollTop = feed.scrollHeight;
             
-            // Keep only last 60 messages
             if (feed.children.length > 60) feed.removeChild(feed.children[0]);
         }
         
-        // Hard-coded Kick connection
         function connectKick() {
             console.log('%c🚀 JAILEX KICK OVERLAY CONNECTED', 'color:#53FC18;font-weight:900');
             
@@ -126,8 +124,6 @@
                     const message = data.content || "";
                     if (message.trim()) addMessage(username, message);
                 });
-                
-                console.log('✅ Kick chat connected successfully');
             } catch(e) {
                 console.error('Kick connection error', e);
             }
@@ -135,11 +131,6 @@
         
         window.onload = () => {
             connectKick();
-            
-            // Auto-reconnect every 4 minutes just in case
-            setInterval(() => {
-                console.log('🔄 Auto-reconnect check');
-            }, 240000);
         };
     </script>
 </body>
