@@ -17,24 +17,10 @@
             color: white;
         }
         
-        #status {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.7);
-            color: #53FC18;
-            font-size: 11px;
-            padding: 6px 12px;
-            text-align: center;
-            font-weight: 600;
-            z-index: 100;
-            letter-spacing: 1px;
-        }
-        
         #chat-feed {
             height: 100vh;
             width: 100vw;
             padding: 20px;
-            padding-top: 40px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -45,26 +31,14 @@
         .message {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 6px;
             animation: fadeIn 0.4s ease forwards;
             max-width: 95%;
         }
         
-        .kick-badge {
-            background: #53FC18;
-            color: #000;
-            font-size: 9px;
-            font-weight: 900;
-            padding: 2px 7px;
-            border-radius: 4px;
-            letter-spacing: 1px;
-            flex-shrink: 0;
-            margin-top: 3px;
-        }
-        
         .username {
             font-weight: 700;
-            color: #53FC18;           /* solid green */
+            color: #53FC18;
             font-size: 12px;
             white-space: nowrap;
             max-width: 160px;
@@ -78,10 +52,9 @@
             line-height: 1.4;
             word-break: break-word;
             flex: 1;
-            background: transparent;     /* 0% background */
+            background: transparent;
             padding: 4px 0;
-            border-left: 4px solid #53FC18;
-            color: #53FC18;              /* solid green - no glow */
+            color: #53FC18;
         }
         
         @keyframes fadeIn {
@@ -98,8 +71,6 @@
     </style>
 </head>
 <body>
-    <div id="status">✅ CONNECTED — Kick Chatroom 92474944</div>
-    
     <div id="chat-feed">
         <div class="empty">Waiting for messages...<br><small>Go live on Kick and type in chat</small></div>
     </div>
@@ -117,7 +88,6 @@
             msgDiv.className = 'message';
             
             msgDiv.innerHTML = `
-                <span class="kick-badge">KICK</span>
                 <span class="username">${username}</span>
                 <span class="text">${message}</span>
             `;
@@ -148,10 +118,6 @@
                     
                     if (message) addMessage(username, message);
                 }
-                
-                channel.bind('pusher:subscription_succeeded', () => {
-                    console.log('%c✅ Kick chat fully connected', 'color:#53FC18');
-                });
                 
             } catch(e) { console.error(e); }
         }
