@@ -2,128 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JAILEX CHAT OVERLAY • TWITCH + KICK + RESTREAM</title>
-    <script src="https://js.pusher.com/8.4.0-rc2/pusher.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAILEX KICK CHAT</title>
     <style>
-        :root {
-            --blue: #00E5FF; --kick: #53FC18; --twitch: #9146FF;
-            --bg: rgba(5, 9, 20, 0.85);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
         * { margin:0; padding:0; box-sizing:border-box; }
         html, body {
-            height: 100vh; width: 100vw; overflow: hidden;
-            background: transparent; /* OBS browser source transparency */
-            font-family: 'Inter', system-ui, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            background: transparent !important; /* 0% opacity */
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
             color: white;
         }
-        .container {
-            height: 100%; width: 100%; display: flex; flex-direction: column;
-            background: var(--bg); border: 3px solid var(--blue); border-radius: 12px;
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.3);
-        }
-        .header {
-            background: rgba(5,9,20,0.95); padding: 12px 20px;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 18px;
-            letter-spacing: 3px; text-align: center; color: var(--blue);
-            border-bottom: 2px solid var(--blue); flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-        }
-        .header::before { content: "🔴"; font-size: 22px; animation: live 1.5s infinite; }
-        @keyframes live { 50% { opacity: 0.3; } }
         
-        .main {
-            flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 12px; overflow: hidden;
-        }
-        
-        /* RESTREAM BOX */
-        #restream-box {
-            flex-shrink: 0; height: 42%; background: #000; border-radius: 10px;
-            border: 2px solid #53FC18; overflow: hidden; position: relative;
-        }
-        #restream-box iframe {
-            width: 100%; height: 100%; border: none;
-        }
-        .restream-label {
-            position: absolute; top: 8px; left: 12px; background: rgba(83,252,24,0.9);
-            color: #000; font-size: 11px; font-weight: 900; padding: 2px 10px;
-            border-radius: 4px; z-index: 10; letter-spacing: 1px;
-        }
-        
-        /* CHAT FEED */
         #chat-feed {
-            flex: 1; background: rgba(0,0,0,0.6); border-radius: 10px;
-            border: 2px solid var(--blue); padding: 14px; overflow-y: auto;
-            font-size: 17px; line-height: 1.4; display: flex; flex-direction: column; gap: 9px;
-            scrollbar-width: thin; scrollbar-color: #00E5FF #111;
+            height: 100vh;
+            width: 100vw;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: none; /* hide scrollbar in OBS */
         }
-        .message {
-            display: flex; gap: 8px; align-items: flex-start; animation: fadeIn 0.3s ease;
-        }
-        .platform {
-            font-size: 13px; font-weight: 900; padding: 2px 6px; border-radius: 4px;
-            min-width: 52px; text-align: center;
-        }
-        .tw { background: #9146FF; color: white; }
-        .ki { background: #53FC18; color: #000; }
-        .username {
-            font-weight: 700; white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
-        }
-        .text { flex: 1; word-break: break-word; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: fadeIn 0.4s ease forwards;
+            max-width: 95%;
+        }
+        
+        .kick-badge {
+            background: #53FC18;
+            color: #000;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 3px 9px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .username {
+            font-weight: 700;
+            color: #53FC18;
+            font-size: 18px;
+            white-space: nowrap;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .text {
+            font-size: 18px;
+            line-height: 1.35;
+            word-break: break-word;
+            flex: 1;
+            background: rgba(0, 0, 0, 0.65); /* subtle readable background */
+            padding: 8px 14px;
+            border-radius: 10px;
+            border-left: 4px solid #53FC18;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         .empty {
-            text-align: center; padding: 40px 20px; color: #666; font-size: 15px;
-        }
-        
-        .footer {
-            font-size: 11px; text-align: center; padding: 6px; color: rgba(255,255,255,0.4);
-            font-family: monospace; flex-shrink: 0;
+            text-align: center;
+            margin-top: 40vh;
+            color: rgba(255,255,255,0.4);
+            font-size: 17px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            JAILEX CHAT OVERLAY
-            <span style="font-size:13px; font-weight:400; opacity:0.7;">TWITCH + KICK + RESTREAM</span>
-        </div>
-        
-        <div class="main">
-            <!-- RESTREAM BOX -->
-            <div id="restream-box" style="display:none;">
-                <div class="restream-label">RESTREAM CHAT</div>
-                <iframe id="restream-iframe" src=""></iframe>
-            </div>
-            
-            <!-- UNIFIED CHAT FEED -->
-            <div id="chat-feed">
-                <div class="empty">Waiting for chats from Twitch &amp; Kick...<br><small>Connect via URL params or localStorage</small></div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            JAILEX v14.3.25 • LIVE CHAT AGGREGATOR • POWERED BY YOUR OMNI-AI
-        </div>
+    <div id="chat-feed">
+        <div class="empty">Waiting for Kick chats...<br><small>justquitbro7 • Room 92474944</small></div>
     </div>
 
+    <script src="https://js.pusher.com/8.4.0-rc2/pusher.min.js"></script>
     <script>
-        // =============================================
-        // CONFIG FROM URL PARAMS (recommended for OBS)
-        // Example URL: https://yourdomain.com/overlay.html?twitch=yourchannel&kick=yourkick&roomid=12345678&restream=https://chat.restream.io/embed/xxxx
-        // =============================================
-        const params = new URLSearchParams(window.location.search);
+        const KICK_USER = "justquitbro7";
+        const KICK_ROOM = "92474944";
         
-        const TW_CHANNEL = params.get('twitch') || localStorage.getItem('jailex_tw');
-        const KICK_USER   = params.get('kick')   || localStorage.getItem('jailex_ki');
-        const KICK_ROOM   = params.get('roomid') || localStorage.getItem('jailex_ki_room');
-        const RESTREAM_URL = params.get('restream') || localStorage.getItem('jailex_rs_url');
-        
-        // =============================================
-        // ADD MESSAGE TO FEED
-        // =============================================
-        function addMessage(platform, username, message) {
+        function addMessage(username, message) {
             const feed = document.getElementById('chat-feed');
             const empty = feed.querySelector('.empty');
             if (empty) empty.remove();
@@ -131,129 +100,46 @@
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
             
-            let platformHTML = '';
-            if (platform === 'tw') {
-                platformHTML = `<span class="platform tw">TWITCH</span>`;
-            } else if (platform === 'ki') {
-                platformHTML = `<span class="platform ki">KICK</span>`;
-            }
-            
             msgDiv.innerHTML = `
-                ${platformHTML}
-                <span class="username" style="color:${platform==='tw'?'#9146FF':'#53FC18'};">${username}</span>
+                <span class="kick-badge">KICK</span>
+                <span class="username">${username}</span>
                 <span class="text">${message}</span>
             `;
             
             feed.appendChild(msgDiv);
             feed.scrollTop = feed.scrollHeight;
             
-            // Keep only last 80 messages for performance
-            if (feed.children.length > 80) feed.removeChild(feed.children[0]);
+            // Keep only last 60 messages
+            if (feed.children.length > 60) feed.removeChild(feed.children[0]);
         }
         
-        // =============================================
-        // TWITCH CONNECTION (exact same as your app)
-        // =============================================
-        let twWS = null;
-        function connectTwitch() {
-            if (!TW_CHANNEL || twWS) return;
-            console.log('[OVERLAY] Connecting Twitch →', TW_CHANNEL);
-            
-            twWS = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
-            twWS.onopen = () => {
-                twWS.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
-                twWS.send('NICK justinfan' + Math.floor(Math.random() * 99999));
-                twWS.send(`JOIN #${TW_CHANNEL.toLowerCase()}`);
-            };
-            
-            twWS.onmessage = (e) => {
-                const lines = e.data.split('\r\n');
-                for (let line of lines) {
-                    if (!line.trim()) continue;
-                    if (line.startsWith('PING')) { twWS.send('PONG :tmi.twitch.tv'); continue; }
-                    
-                    if (line.includes('PRIVMSG')) {
-                        const msgMatch = line.match(/PRIVMSG #[^ ]+ :(.+)/);
-                        if (!msgMatch) continue;
-                        let message = msgMatch[1].trim();
-                        
-                        let user = "User";
-                        const nameMatch = line.match(/display-name=([^;]+)/);
-                        if (nameMatch) user = nameMatch[1];
-                        
-                        addMessage('tw', user, message);
-                    }
-                }
-            };
-            
-            twWS.onclose = () => console.log('[OVERLAY] Twitch disconnected');
-        }
-        
-        // =============================================
-        // KICK CONNECTION (Pusher – exact same as your app)
-        // =============================================
-        let kickChannel = null;
+        // Hard-coded Kick connection
         function connectKick() {
-            if (!KICK_USER || !KICK_ROOM || kickChannel) return;
-            console.log('[OVERLAY] Connecting Kick →', KICK_USER, 'Room:', KICK_ROOM);
+            console.log('%c🚀 JAILEX KICK OVERLAY CONNECTED', 'color:#53FC18;font-weight:900');
             
             try {
                 const pusher = new Pusher('32cbd69e4b950bf97679', { cluster: 'us2' });
-                kickChannel = pusher.subscribe(`chatrooms.${KICK_ROOM}.v2`);
+                const channel = pusher.subscribe(`chatrooms.${KICK_ROOM}.v2`);
                 
-                kickChannel.bind('App\\Events\\ChatMessageEvent', (data) => {
-                    const username = data.sender.username || data.sender.displayname || "KickUser";
+                channel.bind('App\\Events\\ChatMessageEvent', (data) => {
+                    const username = data.sender.username || "KickUser";
                     const message = data.content || "";
-                    if (message) addMessage('ki', username, message);
+                    if (message.trim()) addMessage(username, message);
                 });
-            } catch(e) { console.error('[OVERLAY] Kick Pusher error', e); }
+                
+                console.log('✅ Kick chat connected successfully');
+            } catch(e) {
+                console.error('Kick connection error', e);
+            }
         }
         
-        // =============================================
-        // RESTREAM BOX
-        // =============================================
-        function loadRestream() {
-            if (!RESTREAM_URL) return;
-            const box = document.getElementById('restream-box');
-            const iframe = document.getElementById('restream-iframe');
-            box.style.display = 'flex';
-            iframe.src = RESTREAM_URL;
-            console.log('[OVERLAY] Restream embed loaded');
-        }
-        
-        // =============================================
-        // INIT OVERLAY
-        // =============================================
         window.onload = () => {
-            console.log('%c🚀 JAILEX CHAT OVERLAY LOADED', 'color:#00E5FF;font-weight:900');
+            connectKick();
             
-            // Load Restream first
-            loadRestream();
-            
-            // Connect chats
-            if (TW_CHANNEL) connectTwitch();
-            if (KICK_USER && KICK_ROOM) connectKick();
-            
-            // If nothing connected, show helpful message
-            setTimeout(() => {
-                const feed = document.getElementById('chat-feed');
-                if (feed.children.length === 0 || feed.querySelector('.empty')) {
-                    feed.innerHTML = `
-                        <div class="empty">
-                            No chats yet.<br>
-                            <small>Add params to URL:</small><br>
-                            <code>?twitch=YOURTWITCH&amp;kick=YOURKICK&amp;roomid=12345678&amp;restream=https://...</code>
-                        </div>`;
-                }
-            }, 8000);
-            
-            // Optional: auto-refresh connection every 5 min (prevents disconnects)
+            // Auto-reconnect every 4 minutes just in case
             setInterval(() => {
-                if (twWS && twWS.readyState !== 1 && TW_CHANNEL) {
-                    twWS.close();
-                    setTimeout(connectTwitch, 2000);
-                }
-            }, 300000);
+                console.log('🔄 Auto-reconnect check');
+            }, 240000);
         };
     </script>
 </body>
