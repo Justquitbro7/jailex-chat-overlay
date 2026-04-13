@@ -33,6 +33,7 @@
             gap: 8px;
             animation: fadeIn 0.4s ease forwards;
             max-width: 95%;
+            transition: opacity 0.8s ease;   /* smooth fade out */
         }
         
         .username {
@@ -83,7 +84,16 @@
             feed.appendChild(msgDiv);
             feed.scrollTop = feed.scrollHeight;
             
-            if (feed.children.length > 60) feed.removeChild(feed.children[0]);
+            // Auto-remove after 30 seconds with fade
+            setTimeout(() => {
+                msgDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (msgDiv.parentNode) msgDiv.remove();
+                }, 800);
+            }, 30000);
+            
+            // Safety limit (keep only last 30 messages)
+            if (feed.children.length > 30) feed.removeChild(feed.children[0]);
         }
         
         function connectKick() {
