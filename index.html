@@ -24,14 +24,14 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;           /* slightly more space for bigger text */
             scrollbar-width: none;
         }
         
         .message {
             display: flex;
             align-items: flex-start;
-            gap: 6px;
+            gap: 8px;
             animation: fadeIn 0.4s ease forwards;
             max-width: 95%;
         }
@@ -39,16 +39,16 @@
         .username {
             font-weight: 700;
             color: #53FC18;
-            font-size: 12px;
+            font-size: 16px;           /* 30% larger */
             white-space: nowrap;
-            max-width: 160px;
+            max-width: 190px;          /* a bit wider for bigger names */
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-top: 2px;
+            margin-top: 3px;
         }
         
         .text {
-            font-size: 12px;
+            font-size: 16px;           /* 30% larger */
             line-height: 1.4;
             word-break: break-word;
             flex: 1;
@@ -66,7 +66,7 @@
             text-align: center;
             margin-top: 30vh;
             color: rgba(255,255,255,0.5);
-            font-size: 14px;
+            font-size: 18px;           /* 30% larger */
         }
     </style>
 </head>
@@ -110,21 +110,4 @@
                     const username = data.sender?.username || data.sender?.displayname || "KickUser";
                     
                     let message = "";
-                    if (data.content) message = data.content;
-                    else if (data.message && data.message.message) message = data.message.message;
-                    else if (data.message) message = data.message;
-                    
-                    message = String(message || "").trim();
-                    
-                    if (message) addMessage(username, message);
-                }
-                
-            } catch(e) { console.error(e); }
-        }
-        
-        window.onload = () => {
-            connectKick();
-        };
-    </script>
-</body>
-</html>
+                   
