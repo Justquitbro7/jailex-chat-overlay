@@ -17,10 +17,24 @@
             color: white;
         }
         
+        #status {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.7);
+            color: #53FC18;
+            font-size: 11px;
+            padding: 6px 12px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 100;
+            letter-spacing: 1px;
+        }
+        
         #chat-feed {
             height: 100vh;
             width: 100vw;
             padding: 20px;
+            padding-top: 40px; /* space for status */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -64,7 +78,7 @@
             line-height: 1.4;
             word-break: break-word;
             flex: 1;
-            background: transparent;          /* 0% background as requested */
+            background: transparent;
             padding: 4px 0;
             border-left: 3px solid #53FC18;
         }
@@ -76,21 +90,27 @@
         
         .empty {
             text-align: center;
-            margin-top: 40vh;
-            color: rgba(255,255,255,0.4);
+            margin-top: 30vh;
+            color: rgba(255,255,255,0.5);
             font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <div id="status">🔄 Connecting to Kick Chatroom 92474944...</div>
+    
     <div id="chat-feed">
-        <div class="empty">Waiting for Kick chats...<br><small>justquitbro7 • Room 92474944</small></div>
+        <div class="empty">Waiting for messages...<br><small>Stream must be LIVE on Kick</small></div>
     </div>
 
     <script src="https://js.pusher.com/8.4.0-rc2/pusher.min.js"></script>
     <script>
-        const KICK_USER = "justquitbro7";
         const KICK_ROOM = "92474944";
+        
+        function updateStatus(text, color = "#53FC18") {
+            document.getElementById('status').innerHTML = text;
+            document.getElementById('status').style.color = color;
+        }
         
         function addMessage(username, message) {
             const feed = document.getElementById('chat-feed');
@@ -113,18 +133,29 @@
         }
         
         function connectKick() {
-            console.log('%c🚀 JAILEX KICK OVERLAY CONNECTED', 'color:#53FC18;font-weight:900');
+            updateStatus('🔄 Connecting to Kick Chatroom 92474944...');
             
             try {
                 const pusher = new Pusher('32cbd69e4b950bf97679', { cluster: 'us2' });
                 const channel = pusher.subscribe(`chatrooms.${KICK_ROOM}.v2`);
                 
                 channel.bind('App\\Events\\ChatMessageEvent', (data) => {
-                    const username = data.sender.username || "KickUser";
+                    const username = data.sender?.username || data.sender?.displayname || "KickUser";
                     const message = data.content || "";
-                    if (message.trim()) addMessage(username, message);
+                    if (message.trim()) {
+                        console.log('📨 New Kick message:', username, message);
+                        addMessage(username, message);
+                    }
                 });
+                
+                channel.bind('pusher:subscription_succeeded', () => {
+                    updateStatus('✅ CONNECTED — Waiting for chat messages (stream must be LIVE)', '#53FC18');
+                    console.log('%c✅ Kick Pusher connected successfully', 'color:#53FC18;font-weight:900');
+                });
+                
+                console.log('🚀 Attempting Kick connection...');
             } catch(e) {
+                updateStatus('❌ CONNECTION ERROR — Check console (F12)', '#FF0000');
                 console.error('Kick connection error', e);
             }
         }
